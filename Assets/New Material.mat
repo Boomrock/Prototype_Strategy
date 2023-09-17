@@ -26,6 +26,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Coof: 7.3
+    - _Coof: 10.14
     m_Colors: []
   m_BuildTextureStacks: []
