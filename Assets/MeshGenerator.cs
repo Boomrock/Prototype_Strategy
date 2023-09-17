@@ -5,7 +5,7 @@ using UnityEngine;
 public class MeshGenerator : MonoBehaviour
 {
     [SerializeField] private int _xSize, _ySize;
-
+    [SerializeField] private ComputeShader _shader;
     private Vector3[] _vertices;
     private Mesh _mesh;
 
@@ -54,6 +54,37 @@ public class MeshGenerator : MonoBehaviour
 
         _mesh.triangles = triangles;
         _mesh.RecalculateNormals();
+
+        var date = _mesh.vertices;
+        ComputeBuffer vertexBuffer = new ComputeBuffer(_mesh.vertexCount, sizeof(float) * 3);
+        ComputeBuffer outvertexBuffer = new ComputeBuffer(_mesh.vertexCount, sizeof(float) * 3);
+        
+// Заполняем буфер данными из массива вертексов плоскости
+        vertexBuffer.SetData(date);
+
+// Получаем ссылку на ассет вычислительного шейдера
+// Получаем индекс ядра вычислительного шейдера
+        int kernelIndex = _shader.FindKernel("CSMain");
+// Передаем буфер в вычислительный шейдер
+        _shader.SetBuffer(kernelIndex, "inVertices", vertexBuffer);
+        _shader.SetBuffer(kernelIndex, "outVertices", outvertexBuffer);
+// Передаем коэффициент шума в вычислительный шейдер
+        _shader.SetFloat("_Coof", 10f);
+// Вызываем вычислительный шейдер с 256 группами потоков по оси X и одной группой по оси Y и Z
+        _shader.Dispatch(kernelIndex, 20, 1, 1);
+
+// Получаем измененные данные из буфера
+        outvertexBuffer.GetData(date);
+        vertexBuffer.Release();
+        outvertexBuffer.Release();
+// Обновляем вертексы плоскости
+        Debug.Log(_mesh.vertices[0] );
+        Debug.Log(date[0]);
+        _mesh.vertices = date;
+        _mesh.RecalculateNormals();
+// Освобождаем буфер
+
+        
     }
 
     private void OnDrawGizmos()
