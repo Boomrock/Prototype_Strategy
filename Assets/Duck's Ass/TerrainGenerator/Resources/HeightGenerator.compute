@@ -1,0 +1,37 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+// The input vertex buffer
+// В вычислительном шейдере
+
+// Объявляем буфер для входных вертексов
+StructuredBuffer<float3> inVertices;
+// Объявляем переменную для положения меша
+float3 MeshLocation;
+
+int BiomCoefficient;
+float Coefficient;
+float Amplitude;
+
+// Объявляем буфер для выходных вертексов
+RWStructuredBuffer<float3> outVertices;
+//Коэфиценты Актав
+
+
+// The noise coefficient
+#include "./Packages/jp.keijiro.noiseshader/Shader/ClassicNoise2D.hlsl"
+
+// Объявляем ядро вычислительного шейдера
+[numthreads(8, 8, 1)]
+void CSMain(uint id : SV_DispatchThreadID)
+{
+        // Get the current vertex position from the input buffer
+        float3 pos = inVertices[id];
+        float Biom = ClassicNoise((pos.xz +  MeshLocation.xz) * BiomCoefficient ) * 20;
+
+
+        // Apply the noise function to the y coordinate
+        pos.y = ClassicNoise(pos.xz * Coefficient) * Amplitude;
+
+        // Write the modified vertex position to the output buffer
+        outVertices[id.x] = pos;
+}
