@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Duck_s_Ass.TerrainGenerator
 {
-    public class ChunkGenerator
+    public class ChunkGenerator:IChunkGenerator
     {
         public ChunkGeneratorConfig Config { get; }
         private readonly Chunk _prefab;
@@ -18,7 +18,7 @@ namespace Duck_s_Ass.TerrainGenerator
             _ySize = config.YSize;
             _scale = config.Scale;
         }
-        public ChunkData SpawnChunk()
+        public ChunkData Generate()
         {
             var chunkData = new ChunkData();
             var mesh =  CreatePlane();
@@ -75,6 +75,7 @@ namespace Duck_s_Ass.TerrainGenerator
             return mesh;
         }
 
+      
     }
     public struct ChunkData
     {

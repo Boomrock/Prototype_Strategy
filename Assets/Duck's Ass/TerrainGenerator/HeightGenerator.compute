@@ -30,7 +30,7 @@ void CSMain(uint id : SV_DispatchThreadID)
 
 
         // Apply the noise function to the y coordinate
-        pos.y = ClassicNoise(pos.xz * Coefficient) * Amplitude;
+        pos.y = ClassicNoise((pos.xz + MeshLocation.xz) * Coefficient) * Amplitude;
 
         // Write the modified vertex position to the output buffer
         outVertices[id.x] = pos;

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5be0ccde4334a3b8b3fdde024cfd56d, type: 3}
   m_Name: ChunkGeneratorConfig
   m_EditorClassIdentifier: 
-  XSize: 200
-  YSize: 200
+  XSize: 150
+  YSize: 150
   Scale: 0.5

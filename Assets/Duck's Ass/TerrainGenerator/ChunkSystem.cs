@@ -11,11 +11,11 @@ namespace Duck_s_Ass.TerrainGenerator
         private readonly Dictionary<Vector2Int, ChunkData> _chunkDatas = new Dictionary<Vector2Int, ChunkData>();
         private readonly HeightGenerator _heightGenerator;
         private readonly TickableManager _tickableManager;
-        private readonly ChunkGenerator _chunkGenerator;
+        private readonly IChunkGenerator _chunkGenerator;
         private readonly ChunkSystemConfig _config;
         private readonly Player _player;
 
-        public ChunkSystem( ChunkGenerator chunkGenerator, ChunkSystemConfig config, Player player, HeightGenerator heightGenerator, TickableManager tickableManager )
+        public ChunkSystem( IChunkGenerator chunkGenerator, ChunkSystemConfig config, Player player, HeightGenerator heightGenerator, TickableManager tickableManager )
         {
             _chunkGenerator = chunkGenerator;
             _config = config;
@@ -39,13 +39,12 @@ namespace Duck_s_Ass.TerrainGenerator
                 for (int y = (int)_player.transform.position.z - _config.Radius; y < (int)_player.transform.position.z + _config.Radius; y++)
                 {
                     var chunkPosition = new Vector2Int(x, y);
-                    Debug.Log(chunkPosition);
                     if(_chunkDatas.ContainsKey(chunkPosition)) continue;
                     
-                    var chunkData = _chunkGenerator.SpawnChunk();
-                    _heightGenerator.SetHeight(chunkData);
+                    var chunkData = _chunkGenerator.Generate();
                     chunkData.Chunk.transform.position =
                         new Vector3(x * chunkData.ChunkSize.x, 0, y * chunkData.ChunkSize.y);
+                    _heightGenerator.SetHeight(chunkData);
                 }
             }
         }
