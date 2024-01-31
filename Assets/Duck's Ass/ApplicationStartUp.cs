@@ -1,4 +1,5 @@
 using Duck_s_Ass.TerrainGenerator;
+using Duck_s_Ass.TerrainGenerator.Chunk;
 using TerrainGenerator.Configs;
 using UnityEngine;
 using Zenject;
@@ -41,7 +42,8 @@ namespace Duck_s_Ass
                 .AsSingle();
         
             Container
-                .Bind<ChunkGenerator>()
+                .Bind<IChunkGenerator>()
+                .To<ChunkGenratorUpgrade>()
                 .AsSingle();
             
             Container

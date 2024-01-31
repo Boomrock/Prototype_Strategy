@@ -1,16 +1,16 @@
 using TerrainGenerator.Configs;
 using UnityEngine;
 
-namespace Duck_s_Ass.TerrainGenerator
+namespace Duck_s_Ass.TerrainGenerator.Chunk
 {
     public class ChunkGenerator:IChunkGenerator
     {
         public ChunkGeneratorConfig Config { get; }
-        private readonly Chunk _prefab;
+        private readonly TerrainGenerator.Chunk.Chunk _prefab;
         private readonly int _xSize, _ySize;
         private readonly float _scale;
 
-        public ChunkGenerator(Chunk prefab ,ChunkGeneratorConfig config)
+        public ChunkGenerator(TerrainGenerator.Chunk.Chunk prefab ,ChunkGeneratorConfig config)
         {
             Config = config;
             _prefab = prefab;
@@ -79,7 +79,7 @@ namespace Duck_s_Ass.TerrainGenerator
     }
     public struct ChunkData
     {
-        public Chunk Chunk;
+        public TerrainGenerator.Chunk.Chunk Chunk;
         public Vector2 ChunkSize;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Duck_s_Ass.TerrainGenerator.Chunk;
 using TerrainGenerator.Configs;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -6,7 +7,7 @@ using Zenject;
 
 namespace Duck_s_Ass.TerrainGenerator
 {
-    public class ChunkSystem: ITickable
+    public class ChunkSystem: IChunkSystem ,ITickable
     {
         private readonly Dictionary<Vector2Int, ChunkData> _chunkDatas = new Dictionary<Vector2Int, ChunkData>();
         private readonly HeightGenerator _heightGenerator;
@@ -14,22 +15,26 @@ namespace Duck_s_Ass.TerrainGenerator
         private readonly IChunkGenerator _chunkGenerator;
         private readonly ChunkSystemConfig _config;
         private readonly Player _player;
+        private readonly GameObject _chunksParent;
 
-        public ChunkSystem( IChunkGenerator chunkGenerator, ChunkSystemConfig config, Player player, HeightGenerator heightGenerator, TickableManager tickableManager )
+
+        public ChunkSystem(
+            IChunkGenerator chunkGenerator, 
+            ChunkSystemConfig config, 
+            Player player, 
+            HeightGenerator heightGenerator, 
+            TickableManager tickableManager)
         {
             _chunkGenerator = chunkGenerator;
             _config = config;
             _player = player;
             _heightGenerator = heightGenerator;
             _tickableManager = tickableManager;
-            _tickableManager.Add(this);
+            _chunksParent = new GameObject("Chunks");
             GenereteMap();    
         }
         public void Tick()
         {
-        
-            Debug.Log("spawn");
-
         }
 
         private void GenereteMap()
@@ -43,10 +48,25 @@ namespace Duck_s_Ass.TerrainGenerator
                     
                     var chunkData = _chunkGenerator.Generate();
                     chunkData.Chunk.transform.position =
-                        new Vector3(x * chunkData.ChunkSize.x, 0, y * chunkData.ChunkSize.y);
-                    _heightGenerator.SetHeight(chunkData);
+                        new Vector3(x * (chunkData.ChunkSize.x - 1) , 0, y * (chunkData.ChunkSize.y - 1) );
+                    
+                    chunkData.Chunk.Mesh.vertices = 
+                        _heightGenerator
+                            .SetHeight(chunkData.Chunk.Mesh.vertices, chunkData.Chunk.transform.position);
+                    
+                    chunkData.Chunk.transform.SetParent(_chunksParent.transform);
                 }
             }
+        }
+
+        private Vector2Int tempVector = default;
+
+        public ChunkData GetChunkData(int x, int y)
+        {
+            tempVector.x = x;
+            tempVector.y = y;
+            _chunkDatas.TryGetValue(tempVector, out var chunkData);
+            return chunkData;
         }
     }
 

@@ -1,5 +1,5 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel SetHeight
 // The input vertex buffer
 // В вычислительном шейдере
 
@@ -20,18 +20,26 @@ RWStructuredBuffer<float3> outVertices;
 // The noise coefficient
 #include "./Packages/jp.keijiro.noiseshader/Shader/ClassicNoise2D.hlsl"
 
+float GetHeight(float2 pos)
+{
+        return ClassicNoise(pos* 100) ;
+}
+ 
 // Объявляем ядро вычислительного шейдера
 [numthreads(8, 8, 1)]
-void CSMain(uint id : SV_DispatchThreadID)
+void SetHeight(uint id : SV_DispatchThreadID)
 {
         // Get the current vertex position from the input buffer
         float3 pos = inVertices[id];
-        float Biom = ClassicNoise((pos.xz +  MeshLocation.xz) * BiomCoefficient ) * 20;
-
+        float Biom = GetHeight(pos.xz);
 
         // Apply the noise function to the y coordinate
-        pos.y = ClassicNoise((pos.xz + MeshLocation.xz) * Coefficient) * Amplitude;
+        pos.y = GetHeight(pos.xz);
 
         // Write the modified vertex position to the output buffer
-        outVertices[id.x] = pos;
+        outVertices[id] = pos;
 }
+
+
+
+

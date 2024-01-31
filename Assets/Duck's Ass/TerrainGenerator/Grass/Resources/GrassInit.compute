@@ -1,0 +1,23 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel InitializeGrassChunk
+
+#include  "../../Chunk/Resources/HeightGenerator.compute"
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+struct GrassData {
+    float4 position;
+    float2 uv;
+    float displacement;
+};
+
+RWStructuredBuffer<float4> _Position;
+RWStructuredBuffer<GrassData> _GrassDataBuffer;
+
+[numthreads(10,1,1)]
+void InitializeGrassChunk (uint id : SV_DispatchThreadID)
+{
+    uint rand = (id.x * 1123213213 >> 3) % 10;
+    _GrassDataBuffer[id.x].position.xz = rand;
+    _GrassDataBuffer[id.x].position.y = 5;
+}

@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90cb1152929f4ffaab3c47d135e8c892, type: 3}
   m_Name: ChunkSystemConfig
   m_EditorClassIdentifier: 
-  Radius: 2
+  Radius: 5

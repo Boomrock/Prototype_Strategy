@@ -16,37 +16,40 @@ namespace Duck_s_Ass.TerrainGenerator
 
         }
 
-        public void SetHeight(ChunkData dataChunk)
+        public Vector3[] SetHeight(Vector3[] positions, Vector3 chunkOffset = default)
         {
-            var vertices = dataChunk.Chunk.Mesh.vertices;
             // В скрипте
             // Создаем буфер для входных вертексов
-            ComputeBuffer inVertexBuffer = new ComputeBuffer(vertices.Length, sizeof(float) * 3);
+            ComputeBuffer inVertexBuffer = new ComputeBuffer(positions.Length, sizeof(float) * 3);
             // Заполняем буфер данными из массива вертексов
-            inVertexBuffer.SetData(vertices);
+            inVertexBuffer.SetData(positions);
             // Создаем буфер для выходных вертексов
-            ComputeBuffer outVertexBuffer = new ComputeBuffer(vertices.Length, sizeof(float) * 3);
+            ComputeBuffer outVertexBuffer = new ComputeBuffer(positions.Length, sizeof(float) * 3);
+            Debug.Log(positions.Length);
+
             // Получаем ссылку на ассет вычислительного шейдера
             // Получаем индекс ядра вычислительного шейдера
-            int kernelIndex = _heightComputeGenerator.FindKernel("CSMain");
+            int kernelIndex = _heightComputeGenerator.FindKernel("SetHeight");
             _heightComputeGenerator.SetBuffer(kernelIndex, "inVertices", inVertexBuffer);
             _heightComputeGenerator.SetBuffer(kernelIndex, "outVertices", outVertexBuffer);
             // Передаем параметры шума в вычислительный шейдер
             SetParameters(
-                meshLocation: dataChunk.Chunk.transform.position,
+                meshLocation: chunkOffset,
                 coefficient: 0.01f,
                 Amplitude: 50
                 );
             // Вызываем вычислительный шейдер с нужным количеством групп потоков
-            _heightComputeGenerator.Dispatch(kernelIndex, vertices.Length / 8 , vertices.Length / 8, 1);
+            _heightComputeGenerator.Dispatch(kernelIndex, positions.Length / 8  + 1, positions.Length / 8 + 1, 1);
             // Получаем измененные данные из выходного буфера
-            outVertexBuffer.GetData(vertices);
+            outVertexBuffer.GetData(positions);
+            Debug.Log(positions.Length);
+
             // Освобождаем буферы
             inVertexBuffer.Release();
             outVertexBuffer.Release();
-            dataChunk.Chunk.Mesh.vertices = vertices;
+            return positions;
         }
-
+        
         public void SetParameters(
             float coefficient = 1, 
             float biomCoefficient = 1f, 
@@ -59,5 +62,6 @@ namespace Duck_s_Ass.TerrainGenerator
             _heightComputeGenerator.SetFloats("MeshLocation",
                 new float[] { meshLocation.x, meshLocation.y, meshLocation.z });
         }
+        
     }
 }

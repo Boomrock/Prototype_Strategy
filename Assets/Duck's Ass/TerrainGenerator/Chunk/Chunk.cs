@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Duck_s_Ass.TerrainGenerator
+namespace Duck_s_Ass.TerrainGenerator.Chunk
 {
     public class Chunk : MonoBehaviour
     {
