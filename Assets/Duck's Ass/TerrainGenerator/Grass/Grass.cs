@@ -1,33 +1,27 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using static System.Runtime.InteropServices.Marshal;
-using Duck_s_Ass.TerrainGenerator;
 
 public class Grass : MonoBehaviour
 {
     public Material Material;
     
-    
-    private readonly IChunkSystem _chunkSystem;
-    private Mesh _grassMesh;
     private Bounds _fieldBounds;
+    private Mesh _grassMesh;
+    
     private ComputeBuffer _buffer;
-    private uint[] _args;
     private ComputeBuffer _positionsBuffer;
-    private int _count = 10;
     private Material _grassMaterial;
     
+    private int _count = 10;
+
+    private uint[] _args;
+
     private struct GrassData {
         public Vector4 position;
         public Vector2 uv;
         public float displacement;
     }
-    
-    public Grass(IChunkSystem chunkSystem)
-    {
-        _chunkSystem = chunkSystem;
-    }
-    
+
     private uint[] GetArgs(Mesh mesh)
     {
         var args = new uint[5] { 0, 0, 0, 0, 0 };
@@ -38,23 +32,22 @@ public class Grass : MonoBehaviour
         return args;
     }
 
-    private void OnEnable()
+    public void Initialization(RenderTexture renderTexture)
     {
         _grassMesh = Resources.Load<Mesh>(ResourcesConst.GrassMesh);
         
         _args = GetArgs(_grassMesh);
 
         _fieldBounds = new Bounds(Vector3.zero, new Vector3(-20, 5, 20));
-
         _buffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
-
-        var initializeGrassShader = Resources.Load<ComputeShader>("GrassInit");
         _positionsBuffer = new ComputeBuffer(10, SizeOf(typeof(GrassData)));
 
+        var initializeGrassShader = Resources.Load<ComputeShader>("GrassInit");
         initializeGrassShader.SetBuffer(0, "_GrassDataBuffer", _positionsBuffer);
+        initializeGrassShader.SetTexture(0, "_RenderTexture", renderTexture);
         initializeGrassShader.Dispatch(0, 1,1,1);
+
         _grassMaterial = new Material(Material);
-        
         _grassMaterial.SetBuffer("positionBuffer", _positionsBuffer);
 
         _buffer.SetData(_args);

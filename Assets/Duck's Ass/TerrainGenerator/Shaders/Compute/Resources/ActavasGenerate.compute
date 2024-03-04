@@ -1,0 +1,45 @@
+#pragma kernel GenerateHeightMap
+
+#define MAP_SIZE_X 256
+#define MAP_SIZE_Y 256
+
+#include "./Packages/jp.keijiro.noiseshader/Shader/ClassicNoise2D.hlsl"
+
+// Объявляем текстуру карты высот
+RWTexture2D<float> heightMap;
+
+// Функция генерации шума Перлина в трехмерном пространстве
+float PerlinNoise(float3 pos, float frequency, int octaves)
+{
+    float noiseValue = 0.0;
+    float amplitude = 1.0;
+
+    for (int i = 0; i < octaves; i++)
+    {
+        noiseValue += ClassicNoise(pos * frequency) * amplitude;
+        frequency *= 2.0; // Увеличиваем частоту для каждого октавы
+        amplitude *= 0.5; // Уменьшаем амплитуду для каждой октавы
+    }
+
+    return noiseValue;
+}
+
+[numthreads(8, 8, 1)]
+void GenerateHeightMap(uint3 id : SV_DispatchThreadID)
+{
+    // Получаем координаты пикселя
+    uint2 pixelCoords = uint2(id.xy);
+
+    // Преобразуем координаты пикселя в диапазон от 0 до 1
+    float2 uv = float2(pixelCoords) / float2(MAP_SIZE_X, MAP_SIZE_Y);
+
+    // Получаем трехмерную позицию на основе координат пикселя
+    float3 worldPos = float3(uv.x, 0.0, uv.y);
+
+    // Генерируем высоту с использованием шума Перлина и актав
+    float perlinValue = PerlinNoise(worldPos, 1.0, 5); // Настрой параметры шума здесь
+    float height = perlinValue * 0.5 + 0.5; // Преобразуем в диапазон от 0 до 1
+
+    // Записываем высоту в текстуру карты высот
+    heightMap[pixelCoords] = height;
+}

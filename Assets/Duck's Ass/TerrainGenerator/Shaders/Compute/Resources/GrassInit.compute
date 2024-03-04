@@ -17,7 +17,12 @@ RWStructuredBuffer<GrassData> _GrassDataBuffer;
 [numthreads(10,1,1)]
 void InitializeGrassChunk (uint id : SV_DispatchThreadID)
 {
+    float2 randVector;
+
     uint rand = (id.x * 1123213213 >> 3) % 10;
-    _GrassDataBuffer[id.x].position.xz = rand;
-    _GrassDataBuffer[id.x].position.y = 5;
+    _GrassDataBuffer[id.x].position.x = rand;
+    rand = (rand * 1123213213 >> 3) % 10;
+    _GrassDataBuffer[id.x].position.z = rand;
+    
+    _GrassDataBuffer[id.x].position.y = GetHeight(_GrassDataBuffer[id.x].position.xz);
 }

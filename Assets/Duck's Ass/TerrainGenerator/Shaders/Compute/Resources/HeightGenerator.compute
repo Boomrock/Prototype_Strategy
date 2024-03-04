@@ -1,0 +1,14 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel SetHeight
+// The input vertex buffer
+// В вычислительном шейдере
+
+// Объявляем ядро вычислительного шейдера
+[numthreads(8, 8, 1)]
+void SetHeight(uint id : SV_DispatchThreadID)
+{
+}
+
+
+
+

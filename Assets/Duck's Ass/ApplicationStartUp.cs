@@ -10,6 +10,8 @@ namespace Duck_s_Ass
     {
 
         public ComputeShader HeightGenerator;
+        public WorldGeneration WorldGeneration;
+        
         public override void InstallBindings()
         {
             Container
@@ -23,7 +25,7 @@ namespace Duck_s_Ass
                 .FromInstance(HeightGenerator);
 
             Container
-                .Bind<HeightGenerator>()
+                .BindInterfacesAndSelfTo<HeightGenerator>()
                 .AsSingle();
             
             Container
@@ -40,16 +42,20 @@ namespace Duck_s_Ass
                 .Bind<Chunk>()
                 .FromResource(ResourcesConst.Chunk)
                 .AsSingle();
-        
+                        
             Container
-                .Bind<IChunkGenerator>()
-                .To<ChunkGenratorUpgrade>()
+                .Bind<ChunkCreator>()
                 .AsSingle();
             
             Container
                 .Bind<ChunkSystem>()
                 .AsSingle()
                 .NonLazy();
+            
+            Container
+                .BindInterfacesAndSelfTo<WorldGeneration>()
+                .FromInstance(WorldGeneration)
+                .AsSingle();
         }
     }
 

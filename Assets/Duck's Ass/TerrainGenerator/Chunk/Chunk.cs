@@ -1,20 +1,22 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Duck_s_Ass.TerrainGenerator.Chunk
 {
     public class Chunk : MonoBehaviour
     {
-        public Mesh Mesh
+        public Vector3 position 
         {
-            get => _mesh;
-            set
-            {
-                _mesh = value;
-                GetComponent<MeshFilter>().mesh = _mesh;
-            }
+            get => this.transform.position;
+            set => this.transform.position = value;
+        }
+        
+        public Mesh mesh
+        {
+            get => meshFilter.mesh;
+            set => meshFilter.mesh = value;
         }
 
-        [SerializeField]
-        private Mesh _mesh;
+        [SerializeField] private MeshFilter meshFilter;
     }
 }

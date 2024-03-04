@@ -7,33 +7,25 @@ using Zenject;
 
 namespace Duck_s_Ass.TerrainGenerator
 {
-public enum MeshType {
-    Terrain,
-    Water
-}
-
-    public class ChunkGenratorUpgrade : IChunkGenerator
+    public class ChunkCreator 
     {
         private readonly Chunk.Chunk _prefab;
         private readonly IInstantiator _instantiator;
-        private readonly int _xSize;
-        private readonly int _ySize;
-        private readonly float _scale;
-
-        public ChunkGenratorUpgrade(Chunk.Chunk prefab , ChunkGeneratorConfig config, IInstantiator instantiator)
+        
+        public ChunkCreator(
+            Chunk.Chunk prefab, 
+            ChunkGeneratorConfig config, 
+            IInstantiator instantiator)
         {
             Config = config;
             _prefab = prefab;
             _instantiator = instantiator;
-            _xSize = config.XSize;
-            _ySize = config.YSize;
-            _scale = config.Scale;
         }
 
         public ChunkGeneratorConfig Config { get; set; }
 
 
-        MeshData Generate(int levelOfDetail)
+        MeshData CreateMeshData()
         {
             int meshWidth = Config.XSize;
             int meshHeight = Config.YSize;
@@ -64,69 +56,26 @@ public enum MeshType {
             return meshData;
         }
 
-        public ChunkData Generate()
+        public Chunk.Chunk Generate()
         {
-            var chunkData = new ChunkData();
-            chunkData.Chunk = _instantiator.InstantiatePrefabForComponent<Chunk.Chunk>(_prefab);
-            chunkData.Chunk.Mesh = Generate(6).CreateMesh();
-            chunkData.ChunkSize = new Vector2(Config.XSize * Config.Scale, Config.YSize* Config.Scale);
-            return chunkData;
+            var Chunk = _instantiator.InstantiatePrefabForComponent<Chunk.Chunk>(_prefab);
+            var meshData = CreateMeshData();
+            Chunk.mesh = meshData.CreateMesh();
+            return Chunk;
         }
     }
-    //пока не нужен цвет
-    //градиент цвета по высоте
-    /*index = 0;
-    if (gradient != null)
-    {
-        for (int z = 0; z < verticesPerLine; z++)
-        {
-
-            for (int x = 0; x < verticesPerLine; x++)
-            {
-                // Set vertex colour
-                float y = Mathf.InverseLerp(minDepth, maxDepth, meshData.vertices[index].y);
-                meshData.colours[index] = gradient.Evaluate(y);
-                index++;
-            }
-        }
-    }*/
-
-
-    public class MeshDataThreadInfo
-    {
-        public Vector2 position;
-        public float[,] heightMap;
-        public MeshData meshData;
-        public MeshType type;
-
-        public MeshDataThreadInfo(Vector2 position, float[,] heightMap, MeshData meshData, MeshType type)
-        {
-            this.position = position;
-            this.heightMap = heightMap;
-            this.meshData = meshData;
-            this.type = type;
-        }
-    }
-
 
     public class MeshData
     {
-
         public Vector3[] vertices;
         public int[] triangles;
         public Color[] colours;
         public Vector2[] uvs;
 
-        int meshWidth;
-        int meshHeight;
-
         int triangleIndex = 0;
 
         public MeshData(int width, int height)
         {
-            meshWidth = width;
-            meshHeight = height;
-
             vertices = new Vector3[width * height];
             triangles = new int[(width - 1) * (height - 1) * 6];
             colours = new Color[vertices.Length];
